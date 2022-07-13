@@ -1,0 +1,851 @@
+bankers---
+
+#include<stdio.h>
+struct process
+{
+  int i_all[6], i_max[6], i_need[6], i_finished, i_request[10];
+} p[10];
+int i_avail[6], i_sseq[10], i_ss = 0, i_check1 = 0, i_check2 = 0, n,
+  i_work[6];
+int i_nor;
+int
+main ()
+{
+  int safeseq (void);
+  int tj, ch, i = 0, j = 0, k, ch1;
+  printf ("Enter number of processes : ");
+  scanf ("%d", &n);
+  printf ("Enter the Number of Resources : ");
+  scanf ("%d", &i_nor);
+  printf ("Enter the Available Resources : ");
+  for (j = 0; j < n; j++)
+    {
+      for (k = 0; k < i_nor; k++)
+	{
+	  if (j == 0)
+	    {
+	      printf ("\n For Resource type %d : ", k);
+	      scanf ("%d", &i_avail[k]);
+	    }
+	  p[j].i_max[k] = 0;
+	  p[j].i_all[k] = 0;
+	  p[j].i_need[k] = 0;
+	  p[j].i_finished = 0;
+	  p[j].i_request[k] = 0;
+	}
+    }
+  printf ("\n Enter Max resources for all processes\n");
+  for (i = 0; i < n; i++)
+    {
+      for (j = 0; j < i_nor; j++)
+	{
+	  scanf ("%d", &p[i].i_max[j]);
+	}
+    }
+  printf ("\n Enter Allocated resources for all processes\n");
+  for (i = 0; i < n; i++)
+    {
+      for (j = 0; j < i_nor; j++)
+	{
+	  scanf ("%d", &p[i].i_all[j]);
+	  if (p[i].i_all[j] > p[i].i_max[j])
+	    {
+	      printf ("\n Allocation should be less < or == max");
+	      j--;
+	    }
+	  else
+	    p[i].i_need[j] = p[i].i_max[j] - p[i].i_all[j];
+	}
+    }
+  if (safeseq () == 1)
+    {
+      printf ("\n The System is in Safe state\n ");
+    }
+  else
+    printf ("\n The System is Not in safe state\n ");
+  printf ("\n Need\n");
+  for (i = 0; i < n; i++)
+    {
+      for (j = 0; j < i_nor; j++)
+	printf (" %d ", p[i].i_need[j]);
+      printf ("\n");
+    }
+}
+
+int
+safeseq ()
+{
+  int tk, tj, i, j, k;
+  i_ss = 0;
+  for (j = 0; j < i_nor; j++)
+    i_work[j] = i_avail[j];
+  for (j = 0; j < n; j++)
+    p[j].i_finished = 0;
+  for (tk = 0; tk < i_nor; tk++)
+    {
+      for (j = 0; j < n; j++)
+	{
+	  if (p[j].i_finished == 0)
+	    {
+	      i_check1 = 0;
+	      for (k = 0; k < i_nor; k++)
+		if (p[j].i_need[k] <= i_work[k])
+		  i_check1++;
+	      if (i_check1 == i_nor)
+		{
+		  for (k = 0; k < i_nor; k++)
+		    {
+		      i_work[k] = i_work[k] + p[j].i_all[k];
+		      p[j].i_finished = 1;
+		    }
+		  i_sseq[i_ss] = j;
+		  i_ss++;
+		}
+	    }
+	}
+    }
+  i_check2 = 0;
+  for (i = 0; i < n; i++)
+    if (p[i].i_finished == 1)
+      i_check2++;
+  if (i_check2 >= n)
+    {
+      printf ("The Safe Sequence is\t :");
+      for (tj = 0; tj < n; tj++)
+	printf ("%d ", i_sseq[tj]);
+      return 1;
+    }
+  return 0;
+}
+
+
+cpu scheduling
+
+#include<stdio.h>
+int n,qtum,pid[10],a[10],b[10],tt[10],avg[10];
+int swt=0,stat=0;
+float f_atat=0.0,f_awt=0.0;
+int rr()
+{
+	int ch,st[10],i,count=0,temp,sq=0,totalburst=0;
+	printf("\nEnter the no. of process\n");
+	scanf("%d",&n);
+	printf("Enter burst time\n");
+	for(i=0;i<n;i++)
+	{
+	    pid[i]=i+1;
+	    scanf("%d",&b[i]);
+	    totalburst+=b[i];
+	}
+	printf("Enter the quantum: ");
+	scanf("%d",&qtum);
+	for(i=0;i<n;i++)
+	{
+	    st[i]=b[i];
+	}
+	while(1)
+	{
+	    for(i=0;i<n;i++)
+	    {
+	        temp=qtum;
+	        if(st[i]==0)
+	        {
+	            count++;
+	            continue;
+	        }
+	        if(st[i]>qtum)
+	        st[i]=st[i]-qtum;
+	        else if(st[i]>=0)
+	        {
+	            temp=st[i];
+	            st[i]=0;
+	        }
+	        sq=sq+temp;
+	        tt[i]=sq;
+	    }
+	    if(sq==totalburst)
+	    break;
+	}
+	printf("\nProcess id burst time wait time turnaround time\n");
+	for(i=0;i<n;i++)
+	{
+	    avg[i]=tt[i]-b[i];
+	    printf("%d\t\t%d\t\t%d\t\t%d",i+1,b[i],avg[i],tt[i]);
+	    printf("\n");
+	}
+	for(i=0;i<n;i++)
+	{
+	    swt=swt+avg[i];
+	    stat=stat+tt[i];
+	}
+	f_awt=(float)swt/n;
+	f_atat=(float)stat/n;
+	printf("\n\nAverage waiting time is %f\nAverage turnaround time is %f",f_awt,f_atat);
+	return 1;
+}
+int srtf()
+{
+    int ch,a[10],b[10],x[10],i,smallest,count=0,time1=0,n;
+    double avg=0,tt=0,end;
+    printf("Enter the number of processes: \n");
+    scanf("%d",&n);
+    printf("Enter arrival time\n");
+    for(i=0;i<n;i++)
+    scanf("%d",&a[i]);
+    printf("Enter the burst time\n");
+    for(i=0;i<n;i++)
+    scanf("%d",&b[i]);
+    for(i=0;i<n;i++)
+    x[i]=b[i];
+    b[9]=9999;
+    for(time1=0;count!=n;time1++)
+    {
+        smallest=9;
+        for(i=0;i<n;i++)
+        {
+            if(a[i]<=time1 &&b[i]<b[smallest] &&b[i]>0)
+            smallest=i;
+        }
+        b[smallest]--;
+        if(b[smallest]==0)
+        {
+            count++;
+            end=time1+1;
+            avg=avg+end-a[smallest]-x[smallest];
+            tt=tt+end-a[smallest];
+        }
+    }
+    printf("\nAverage waiting time =%lf\n",avg/n);
+    printf("Average turnaround time %lf\n",tt/n);
+    return 0;
+}
+int main()
+{
+    int i,ch;
+    printf("1:SRTF\n2:RR\n3:exit\n");
+    printf("Enter the choice\n");
+    scanf("%d",&ch);
+    switch(ch)
+    {
+        case 1:srtf();
+        break;
+        case 2:rr();
+        break;
+        case 3:return 1;
+    }
+    return 1;
+}
+
+
+
+page replacement
+
+#include<stdio.h>
+#include<stdlib.h>
+void fifo(char [],char [],int, int);
+void lru(char [],char [],int, int);
+int main()
+{
+    int ch,yn=1,i,l,f;
+    char F[10],s[25];
+    printf("\n\nEnter the no of empty frames: ");
+    scanf("%d",&f);
+    printf("\n\nEnter the length of the string: ");
+    scanf("%d",&l);
+    printf("\n\nEnter the string: ");
+    scanf("%s",s);
+    for(i=0;i<f;i++)
+    F[i]=-1;
+    do{
+        printf("\n\n\t******Menu******");
+        printf("\n\n\t1:FIFO\n\n\t2:LRU\n\n\t3:Exit\n");
+        scanf("%d",&ch);
+        switch(ch)
+        {
+            case 1:
+            for(i=0;i<f;i++)
+            {
+                F[i]=-1;
+            }
+            fifo(s, F,l,f);
+            break;
+            case 2:
+            for(i=0;i<f;i++)
+            {
+                F[i]=-1;
+            }
+            lru(s,F,l,f);
+            break;
+            case 3:
+            exit(0);
+        }
+        printf("\n\n\tDo you want to continue If Yess press 1\n\n\tIf No press 0: ");
+        scanf("%d",&yn);
+    }
+    while(yn==1);
+    return(0);
+}
+
+
+void fifo(char s[],char F[],int l,int f)
+{
+    int i,j=0,k,flag=0,cnt=0;
+    printf("\n\tPage\tFrames\tFaults");
+    for(i=0;i<l;i++)
+    {
+        for(k=0;k<f;k++)
+        {
+            if(F[k]==s[i])
+            flag=1;
+        }
+        if(flag==0)
+        {
+            printf("\n\t%c\t",s[i]);
+            F[j]=s[i];
+            j++;
+            for(k=0;k<f;k++)
+            {
+                printf(" %c",F[k]);
+            }
+            printf("\tPage-fault%d",cnt);
+            cnt++;
+        }
+        else{
+            flag=0;
+            printf("\n\t%c\t",s[i]);
+            for(k=0;k<f;k++)
+            {
+                printf(" %c",F[k]);
+            }
+            printf("\tNo Page-fault%d",cnt);
+            }
+            if(j==f)
+            j=0;
+        }
+    }
+void lru(char s[],char F[],int l,int f)
+{
+    int i,j=0,k,m,flag=0,cnt=0,top=0;
+    printf("\n\tPage\tFrames\tFaults");
+    for(i=0;i<l;i++)
+    {
+        for(k=0;k<f;k++)
+        {
+            if(F[k]==s[i])
+            {
+            flag=1;
+            break;
+            }
+        }
+        printf("\n\t%c\t",s[i]);
+        if(j!=f && flag!=1)
+        {
+            F[top]=s[i];
+            j++;
+            if(j!=f)
+            top++;
+        }
+        else
+        {
+            if(flag!=1)
+            {
+                for(k=0;k<top;k++)
+                {
+                    F[k]=F[k+1];
+                }
+                F[top]=s[i];
+            }
+            if(flag==1)
+            {
+                for(m=k;m<top;m++)
+                {
+                    F[m]=F[m+1];
+                }
+                F[top]=s[i];
+            }
+        }
+        for(k=0;k<f;k++)
+        {
+            printf(" %c",F[k]);
+        }
+        if(flag==0)
+        {
+            printf("\tPage-fault%d",cnt);
+            cnt++;
+        }
+        else
+        printf("\tNo page fault");
+        flag=0;
+    }    
+}
+
+
+LL
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char ip[20], stack[20];
+
+int main(){
+	char m[2][3][3] = {{"aBa", "E", "E"}, {"n","bB","E"}};
+	int size[2][3] = {3,1,1,1,2,1};
+	int i,j,k,n,row,col,flag = 0;
+	int p, q, r;
+	printf("\nEnter the input string: ");
+	scanf("%s", ip);
+	strcat(ip, "$");
+	n = strlen(ip);
+	stack[0] = '$';
+	stack[1] = 'A';
+	i = 1;
+	j = 0;
+	printf("Parsing table:\n");
+	for(p = 0; p < 2; p++){
+		for(q = 0; q < 3; q++){
+			for(r = 0; r < 3; r++)
+				printf("%c", m[p][q][r]);
+			printf("\t");
+		}
+		printf("\n");
+	}
+	printf("\nStack\t\tInput\n");
+	printf("________\t_________\n");
+	for(k = 0; k <= i; k++)
+		printf("%c", stack[k]);
+	printf("\t\t");
+	for(k = j; k <= n; k++)
+		printf("%c", ip[k]);
+	printf("\n");
+	
+	while((stack[i] != '$') && (ip[j] != '$')){
+		
+		if(stack[i] == ip[j]){
+			i--;
+			j++;
+			for(k = 0; k <= i; k++)
+				printf("%c", stack[k]);
+			printf("\t\t");
+			for(k = j; k <= n; k++)
+				printf("%c", ip[k]);
+			printf("\n");
+		}
+		
+		switch(stack[i]){
+			case 'A':row = 0;break;
+			case 'B':row = 1;break;
+			default: if((stack[i] == '$') && (ip[j] == '$'))
+					printf("\nSuccessful parsing\n");
+				else{
+					printf("\nUnsuccesful parsing");
+					printf("Error-no valid match\n");
+				}
+				exit(0);
+		}
+		
+		switch(ip[j]){
+			case 'a': col = 0;break;
+			case 'b': col = 1;break;
+			case '$': col = 2;break;
+		}
+		
+		if(m[row][col][0] == ip[j]){
+			for(k = size[row][col]-1; k >= 0; k--){
+				stack[i] = m[row][col][k];
+				i++;
+			}
+			i--;
+		}
+		
+		if(m[row][col][0] == 'E'){
+			if(i > 0)
+				printf("\nError...\n");
+			else
+				flag = 1;
+			exit(0);
+		}
+		
+		if(m[row][col][0] == 'n')
+			i--;
+		for(k = 0; k <= i; k++)
+			printf("%c", stack[k]);
+		printf("\t\t");
+		for(k = j; k <= n; k++)
+			printf("%c", ip[k]);
+		printf("\n");
+	}
+	return 0;
+}
+
+
+
+
+SRP
+
+#include <stdio.h>
+#include <string.h>
+
+int k=0, z=0, i=0, j=0, c=0;
+char a[16], ac[20], stk[15], act[10];
+
+void check();
+
+int main() {
+	printf("GRAMMER is:\nE->E+T|T\nT->T*F|F\nF->(E)|id\n");
+	printf("Enter input string\n");
+	scanf("%s", a);
+	c = strlen(a);
+	printf("stack \t input \t action\n");
+	printf("------\t-------\t-------\n");
+	printf("\n$%s\t%s$\t", stk, a);
+	for (k=0, i=0; j<c; k++, i++, j++) {
+		if (a[j]=='i' && a[j+1]=='d') {
+			strcpy(act, "SHIFT ");
+			stk[i] = a[j];
+			stk[i+1] = a[j+1];
+			stk[i+2] = '\0';
+			a[j] = ' ';
+			a[j+1] = ' ';
+			printf("\n$%s\t%s$\t%sid", stk, a, act);
+			check();
+		} else if (a[j]=='+' || a[j]=='*') {
+			strcpy(act, "SHIFT ");
+			stk[i] = a[j];
+			stk[i+1] = '\0';
+			a[j] = ' ';
+			printf("\n$%s\t%s$\t%s%c", stk, a, act, stk[i]);
+			check();
+		} else {
+			printf("\nERROR IN INPUT\n");
+			break;
+		}
+	}
+	if (stk[0]=='E' && j==c)
+		printf("\n****SUCESSFULL PARSING****\n");
+	else
+		printf("****FAILURE IN PARSING****\n");
+}
+
+void check() {
+	strcpy(ac, "REDUCE F->id");
+	for (z=0; z<c; z++) {
+		if(stk[z] == 'i' && stk[z+1]=='d') {
+			stk[z] = 'F';
+			stk[z + 1] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+			j++;
+		}
+	}
+	strcpy(ac, "REDUCE T->T*F");
+	for (z=0; z<c; z++) {
+		if(stk[z] == 'T' && stk[z+1]=='*' && stk[z+2] == 'F') {
+			stk[z] = 'T';
+			stk[z + 1] = '\0';
+			stk[z + 2] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+			i = i - 2;
+		}
+	}
+	strcpy(ac, "REDUCE T->F");
+	for (z=0; z<c; z++) {
+		if(stk[z] == 'F') {
+			stk[z] = 'T';
+			stk[z + 1] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+		}
+	}
+	strcpy(ac, "REDUCE E->E+T");
+	for (z=0; z<c; z++) {
+		if (stk[z] == 'E' && stk[z+1] == '+' && stk[z+2] == 'T' && stk[z+3] != '*' && a[j+1] != '*') {
+			stk[z] = 'E';
+			stk[z + 1] = '\0';
+			stk[z + 2] = '\0';
+			stk[z + 3] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+			i = i - 2;
+		} else if (stk[z] == 'E' && stk[z + 1] == '+' && stk[z + 2] == 'T' && j == c) {
+			stk[z] = 'E';
+			stk[z + 1] = '\0';
+			stk[z + 2] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+			i = i - 2;
+		} else {
+			break;
+		}
+	}
+	strcpy(ac, "REDUCE E->T");
+	for(z = 0; z < c; z++) {
+		if(stk[z] == 'T'){
+			if(a[j + 1] == '+' || a[j + 1] == '\0'){
+				stk[z] = 'E';
+				stk[z + 1] = '\0';
+				printf("\n$%s\t%s$\t%s", stk, a, ac);
+			}else
+				break;
+		}
+	}
+	strcpy(ac, "REDUCE F->(E)");
+	for(z = 0; z < c; z++) {
+		if(stk[z] == '(' && stk[z + 1] == 'E' && stk[z + 2] == ')'){
+			stk[z] = 'F';
+			stk[z + 1] = '\0';
+			stk[z + 1] = '\0';
+			printf("\n$%s\t%s$\t%s", stk, a, ac);
+			i = i - 2;
+		}
+	}
+}
+
+
+
+
+LEX
+
+
+1a 
+%{
+	int id=0,op=0,v=0;
+%}
+
+%%
+[a-zA-Z0-9]+ { id++; printf("\nIdentifier: "); ECHO; }
+[\+\-\*\/\=] { op++; printf("\nOperator: "); ECHO; }
+"(" v++;
+")" v--;
+.|\n ;
+%%
+
+int main()
+{
+	printf("Enter the expression\n");
+	yylex();
+	printf("\nCount of identifiers=%d and operators=%d",id,op);
+	if((op+1)==id && v==0)
+	printf("\nExpression is valid\n");
+	else
+	printf("\nExpression is invalid\n");
+	return 0;
+}
+
+1b
+lex
+%{
+	#include "y.tab.h"
+	extern yylval;
+%}
+%%
+[0-9]+	{ yylval=atoi(yytext); return num; }
+[\+\-\*\/]	{ return yytext[0]; }
+[)]	{ return yytext[0]; }
+[(]	{ return yytext[0]; }
+.	{ ; }
+\n	{ return 0; }
+%%
+
+yacc
+%{
+	#include<stdio.h>
+	#include<stdlib.h>
+%}
+%token num
+%left '+' '-'
+%left '*' '/'
+
+%%
+input: exp {printf("%d\n",$$);exit(0); }
+exp: exp'+' exp {$$=$1+$3;}
+|exp'-' exp {$$=$1-$3;}
+|exp'*' exp {$$=$1*$3;}
+|exp'/' exp {if ($3==0) {printf("Divide by Zero\n");exit(0);}
+else $$=$1/$3;}
+|'('exp')'{$$=$2;}
+|num{$$=$1;};
+%%
+
+int yyerror()
+{
+	printf("error");
+	exit(0);
+}
+
+int main()
+{
+	printf("Enter an expression: \n");
+	yyparse();
+}
+
+
+
+2
+
+lex 
+%{
+	#include "y.tab.h"
+%}
+
+%%
+a	{ return A; }
+b	{ return B; }
+[\n]	{ return '\n'; }
+%%
+
+yacc
+
+%{
+	#include <stdio.h>
+	#include <stdlib.h>
+%}
+
+%token A B
+
+%%
+input:s '\n' { printf("Successful Grammar\n"); exit(0); }
+s: A M B| B
+M: A M | ;
+%%
+
+int main()
+{
+	printf("Enter a string\n");
+	yyparse();
+}
+int yyerror()
+{
+	printf("Error \n");
+	exit(0);
+}
+
+6a
+
+l
+%%
+"//".* ;
+"/*"[^*/]*"*/" ;
+%%
+
+int main()
+{
+	yyin=fopen("input.c","r");
+	yyout=fopen("output.c","w");
+	yylex();
+}
+
+6b
+
+l
+%{
+	#include "y.tab.h"
+	extern yylval;
+%}
+
+%%
+[ /t]	;
+[+|-|*|/|=|<|>]	{ printf("operator is %s\n",yytext); return OP; }
+[0-9]+	{ yylval= atoi(yytext); printf("number is %d\n",yylval); return DIGIT; }
+int|char|bool|float|void|for|do|while|if|else|return|void	{ printf("keyword is %s\n",yytext);return KEY; }
+[a-zA-Z0-9]+	{ printf("identifier is %s\n",yytext);return ID; }
+.	;
+%%
+
+y
+
+%{
+	#include <stdio.h>
+	#include <stdlib.h>
+	int id=0,dig=0,key=0,op=0;
+%}
+%token DIGIT ID KEY OP
+%%
+input:
+DIGIT input { dig++; }
+| ID input { id++; }
+| KEY input { key++; }
+| OP input { op++; }
+| DIGIT { dig++; }
+| ID { id++; }
+| KEY { key++; }
+| OP { op++; }
+;
+%%
+
+extern FILE *yyin;
+int main()
+{
+	yyin=fopen ("demo.c","r");
+	if(!yyin)
+	{
+		printf("File not found");
+		exit(0);
+	}
+	yyparse();
+	printf("Identifier count=%d, Digit count=%d,Keyword count=%id,Operator count=%d\n",id,dig,key,op);
+	return 0;
+}
+
+void yyerror()
+{
+	printf("EEK,parse error! Message: ");
+	exit(0);
+}
+
+
+
+
+lex filename.l
+cc lex.yy.c -ll
+./a.out
+
+
+yacc
+
+
+yacc -d name.y
+lex name.l
+cc y.tab.c lex.yy.c -ll -ly
+
+
+
+5th
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h>
+#include<string.h>
+
+char tset[4][3][3]={{"-","B","?"},{"+","C","D"},{"*","0","1"},{"=","A","Z"}};
+
+int main()
+{
+	int row,col;
+	for(row=0;row<4;row++)
+	{
+		col=2;
+		if(tset[row][col][0]=='?')
+		{
+			printf("\nLD R0,%s %s",tset[row][0],tset[row][1]);
+		}
+		else
+		{
+			if(tset[row][0][0]=='+')
+			{
+				printf("\nLD R1,%s",tset[row][1]);
+				printf("\nLD R2,%s",tset[row][2]);
+				printf("\nADD R1,R1,R2");
+			}
+			else
+			{
+				if(tset[row][0][0]=='*')
+				{
+					printf("\nMUL R1,R1,R0");
+				}
+				else
+				{
+					printf("\nST %s,R1",tset[row][1]);
+				}
+			}
+		}
+	}
+	printf("\n");
+	return 0;
+}
